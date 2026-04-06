@@ -2,7 +2,7 @@ import pandas as pd
 import torch
 
 from dataset import CharDataset
-from model import BigramLanguageModel
+from model import GPTLanguageModel
 
 
 def load_text_from_csv(file_path: str, text_column: str = "text") -> str:
@@ -50,11 +50,14 @@ def estimate_loss(model, train_dataset, valid_dataset, eval_iters, batch_size, d
 def main():
     block_size = 128
     batch_size = 32
-    n_embd = 64
-    max_iters = 3000
+    n_embd = 96
+    n_head = 4
+    n_layer = 3
+    max_iters = 6000
     eval_interval = 300
     eval_iters = 100
-    learning_rate = 1e-3
+    learning_rate = 3e-4
+    dropout = 0.2
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -81,10 +84,13 @@ def main():
     print(f"Valid length: {len(valid_dataset.data)}")
     print(f"Test length: {len(test_dataset.data)}")
 
-    model = BigramLanguageModel(
+    model = GPTLanguageModel(
         vocab_size=train_dataset.vocab_size,
         block_size=block_size,
-        n_embd=n_embd
+        n_embd=n_embd,
+        n_head=4,
+        n_layer=2,
+        dropout=dropout
     ).to(device)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
