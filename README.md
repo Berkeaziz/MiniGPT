@@ -8,40 +8,40 @@ The model is trained on text data and learns to generate Shakespeare-like sequen
 
 ## Features
 
-- Character-level tokenization
+- Character-level tokenization  
 - Full Transformer architecture:
-  - Token + positional embeddings
-  - Masked (causal) self-attention
-  - Multi-head attention
-  - Feed-forward network
-  - Residual connections
-  - Layer normalization
-  - Dropout regularization
+  - Token + positional embeddings  
+  - Masked (causal) self-attention  
+  - Multi-head attention  
+  - Feed-forward network  
+  - Residual connections  
+  - Layer normalization  
+  - Dropout regularization  
 
 ### Training Pipeline
 
-- Train / Validation / Test split
-- Mini-batch training
-- Periodic evaluation on validation set
-- Best model checkpoint saving
-- Loss tracking
+- Train / Validation / Test split  
+- Mini-batch training  
+- Periodic evaluation on validation set  
+- Best model checkpoint saving  
+- Loss tracking  
 
 ### Text Generation
 
-- Temperature sampling
-- Top-k sampling
-- Context-aware sequence generation
+- Temperature sampling  
+- Top-k sampling  
+- Context-aware sequence generation  
 
 ### System
 
-- GPU support (CUDA)
-- Efficient batching
+- GPU support (CUDA)  
+- Efficient batching  
 
 ### Artifact Saving
 
-- Model checkpoint
-- Training metrics (JSON)
-- Generated text output
+- Model checkpoint  
+- Training metrics (JSON)  
+- Generated text output  
 
 ---
 
@@ -49,12 +49,12 @@ The model is trained on text data and learns to generate Shakespeare-like sequen
 
 The model follows a standard GPT-style Transformer:
 
-- Embedding Layer (Token + Position)
+- Embedding Layer (Token + Position)  
 - Stacked Transformer Blocks:
-  - Multi-head self-attention
-  - Feed-forward network
-  - Residual connections + LayerNorm
-- Final Linear Head → Vocabulary logits
+  - Multi-head self-attention  
+  - Feed-forward network  
+  - Residual connections + LayerNorm  
+- Final Linear Head → Vocabulary logits  
 
 ---
 
@@ -73,11 +73,11 @@ max_iters = 6000
 
 ## Results
 
-| Metric               | Value    |
-|:--------------------|:--------:|
-| Best Validation Loss| `1.8154` |
-| Test Loss           | `1.8594` |
-| Device              | `CUDA`   |
+| Metric                | Value    |
+|:---------------------|:--------:|
+| Best Validation Loss | `1.8154` |
+| Test Loss            | `1.8594` |
+| Device               | `CUDA`   |
 
 ## Model Capabilities
 
@@ -100,18 +100,18 @@ top_k = 20
 
 - **MiniGPT/**
   - **data/**
-    - train.csv
-    - validation.csv
-    - test.csv
+    - train.csv  
+    - validation.csv  
+    - test.csv  
   - **src/**
-    - model.py
-    - dataset.py
-    - train.py
+    - model.py  
+    - dataset.py  
+    - train.py  
   - **artifacts/**
-    - best_model.pt
-    - training_results.json
-    - generated_text.txt
-  - README.md
+    - best_model.pt  
+    - training_results.json  
+    - generated_text.txt  
+  - README.md  
 
 ## Saved Artifacts
 
@@ -144,18 +144,27 @@ Make sure:
 ## Example Output
 
 ```
-KING:
-What say you to this?
+Bust your by: your may feight cours?
 
-HAMLET:
-I do beseech you, give me leave to speak.
+FORAMEONIUS:
+Be his in upon my lady loveds.
 
-KING:
-Proceed.
+BRINA:
+And sus wome did that as lo courgfrows to towed to heam a ding
+Who have these I not your I must ofes deaves,
+What I hown ell to peack have well with in truthose anseland to befand.
 
-HAMLET:
-There is a matter that weighs upon my soul...
+YORK:
+What I come my arm trauch I say thee of their en you blood thim.
+
+DUCKESS WARD:
+That thou stran as sills that godly weep to mone are
+the thou dough old say the agair morety, are wark,
+Then streitiong that and the lacke
+Be
 ```
+
+> Note: The generated text reflects early-stage character-level learning. While it captures structure and formatting, it may still contain nonsensical words.
 
 ## Notes
 
