@@ -58,7 +58,7 @@ The model follows a standard GPT-style Transformer:
 
 ---
 
-## ⚙️ Training Configuration
+## Training Configuration
 
 ```python
 block_size = 128
@@ -69,15 +69,15 @@ n_layer = 3
 dropout = 0.2
 learning_rate = 3e-4
 max_iters = 6000
+```
 
 ## Results
 
-| Metric               | Value   |
-|:---------------------|:-------:|
-| Best Validation Loss | `1.8154` |
-| Test Loss            | `1.8594` |
-| Device               | `CUDA`   |
-
+| Metric               | Value    |
+|:--------------------|:--------:|
+| Best Validation Loss| `1.8154` |
+| Test Loss           | `1.8594` |
+| Device              | `CUDA`   |
 
 ## Model Capabilities
 
@@ -89,12 +89,12 @@ The model successfully learns:
 - Punctuation patterns  
 - Context-aware generation  
 
-
 ## Generation Settings
 
 ```python
 temperature = 0.8
 top_k = 20
+```
 
 ## Project Structure
 
@@ -113,7 +113,7 @@ top_k = 20
     - generated_text.txt
   - README.md
 
-  ## Saved Artifacts
+## Saved Artifacts
 
 After training, the following files are generated:
 
@@ -121,29 +121,27 @@ After training, the following files are generated:
 - **training_results.json** → Loss curves and evaluation metrics  
 - **generated_text.txt** → Sample generated output  
 
-
 ## Training Workflow
 
-    1. Load dataset from CSV files  
-    2. Build vocabulary (`stoi` / `itos`)  
-    3. Train model using mini-batch sampling  
-    4. Evaluate periodically on validation set  
-    5. Save best model checkpoint  
-    6. Reload best model after training  
-    7. Evaluate on test set  
-    8. Generate sample text  
-    9. Save results  
+1. Load dataset from CSV files  
+2. Build vocabulary (`stoi` / `itos`)  
+3. Train model using mini-batch sampling  
+4. Evaluate periodically on validation set  
+5. Save best model checkpoint  
+6. Reload best model after training  
+7. Evaluate on test set  
+8. Generate sample text  
+9. Save results  
 
+## Requirements
 
-    ## Requirements
+Make sure:
 
-    Make sure:
+- CSV files exist inside `data/`  
+- PyTorch is installed  
+- CUDA is available (optional but recommended)  
 
-    - CSV files exist inside `data/`  
-    - PyTorch is installed  
-    - CUDA is available (optional but recommended)  
-
-    ## Example Output
+## Example Output
 
 ```
 KING:
@@ -167,7 +165,6 @@ This project is built entirely from scratch to understand:
 - Self-attention mechanism  
 - Token generation process  
 - Training dynamics of language models  
-
 
 ## Future Improvements
 
