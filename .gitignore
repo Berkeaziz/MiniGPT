@@ -1,0 +1,5 @@
+/artifacts/best_model.pt
+/data
+/src/__pycache__
+/src
+/.venv
