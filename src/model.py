@@ -48,7 +48,7 @@ class BigramLanguageModel(nn.Module):
   
 
 class Head(nn.Module):
-    def __init__(self, head_size: int, n_embd: int, block_size: int):
+    def __init__(self, head_size: int, n_embd: int, block_size: int, dropout: float):
         super().__init__()
 
         self.key = nn.Linear(n_embd, head_size, bias=False)
@@ -56,59 +56,69 @@ class Head(nn.Module):
         self.value = nn.Linear(n_embd, head_size, bias=False)
 
         self.register_buffer("tril", torch.tril(torch.ones(block_size, block_size)))
+
+        self.dropout = nn.Dropout(dropout)
         self.head_size = head_size
 
     def forward(self, x):
         B, T, C = x.shape
 
-        k = self.key(x)                              # (B, T, head_size)
-        q = self.query(x)                            # (B, T, head_size)
+        k = self.key(x)
+        q = self.query(x)
 
-        wei = q @ k.transpose(-2, -1)                # (B, T, T)
+        wei = q @ k.transpose(-2, -1)
         wei = wei * (self.head_size ** -0.5)
+
         wei = wei.masked_fill(self.tril[:T, :T] == 0, float("-inf"))
         wei = F.softmax(wei, dim=-1)
 
-        v = self.value(x)                            # (B, T, head_size)
-        out = wei @ v                                # (B, T, head_size)
+        wei = self.dropout(wei)   # 🔥 dropout burada
+
+        v = self.value(x)
+        out = wei @ v
 
         return out
 
 
 class MultiHeadAttention(nn.Module):
-    def __init__(self, num_heads: int, head_size: int, n_embd: int, block_size: int):
+    def __init__(self, num_heads, head_size, n_embd, block_size, dropout):
         super().__init__()
+
         self.heads = nn.ModuleList(
-            [Head(head_size, n_embd, block_size) for _ in range(num_heads)]
+            [Head(head_size, n_embd, block_size, dropout) for _ in range(num_heads)]
         )
+
         self.proj = nn.Linear(num_heads * head_size, n_embd)
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x):
         out = torch.cat([h(x) for h in self.heads], dim=-1)
         out = self.proj(out)
+        out = self.dropout(out)   # 🔥 burada
         return out
 
-
 class FeedForward(nn.Module):
-    def __init__(self, n_embd: int):
+    def __init__(self, n_embd, dropout):
         super().__init__()
+
         self.net = nn.Sequential(
             nn.Linear(n_embd, 4 * n_embd),
             nn.ReLU(),
             nn.Linear(4 * n_embd, n_embd),
+            nn.Dropout(dropout),   # 🔥 burada
         )
 
     def forward(self, x):
         return self.net(x)
 
-
 class Block(nn.Module):
-    def __init__(self, n_embd: int, n_head: int, block_size: int):
+    def __init__(self, n_embd, n_head, block_size, dropout):
         super().__init__()
+
         head_size = n_embd // n_head
 
-        self.sa = MultiHeadAttention(n_head, head_size, n_embd, block_size)
-        self.ffwd = FeedForward(n_embd)
+        self.sa = MultiHeadAttention(n_head, head_size, n_embd, block_size, dropout)
+        self.ffwd = FeedForward(n_embd, dropout)
 
         self.ln1 = nn.LayerNorm(n_embd)
         self.ln2 = nn.LayerNorm(n_embd)
@@ -120,7 +130,7 @@ class Block(nn.Module):
 
 
 class GPTLanguageModel(nn.Module):
-    def __init__(self, vocab_size: int, block_size: int, n_embd: int, n_head: int, n_layer: int):
+    def __init__(self, vocab_size, block_size, n_embd, n_head, n_layer, dropout):
         super().__init__()
 
         self.block_size = block_size
@@ -129,7 +139,7 @@ class GPTLanguageModel(nn.Module):
         self.position_embedding_table = nn.Embedding(block_size, n_embd)
 
         self.blocks = nn.Sequential(
-            *[Block(n_embd, n_head, block_size) for _ in range(n_layer)]
+            *[Block(n_embd, n_head, block_size, dropout) for _ in range(n_layer)]
         )
 
         self.ln_f = nn.LayerNorm(n_embd)
@@ -138,26 +148,25 @@ class GPTLanguageModel(nn.Module):
     def forward(self, idx, targets=None):
         B, T = idx.shape
 
-        tok_emb = self.token_embedding_table(idx)                       # (B, T, n_embd)
-        pos_emb = self.position_embedding_table(
-            torch.arange(T, device=idx.device)
-        )                                                               # (T, n_embd)
+        tok_emb = self.token_embedding_table(idx)
+        pos_emb = self.position_embedding_table(torch.arange(T, device=idx.device))
 
-        x = tok_emb + pos_emb                                           # (B, T, n_embd)
-        x = self.blocks(x)                                              # (B, T, n_embd)
-        x = self.ln_f(x)                                                # (B, T, n_embd)
-        logits = self.lm_head(x)                                        # (B, T, vocab_size)
+        x = tok_emb + pos_emb
+        x = self.blocks(x)
+        x = self.ln_f(x)
+
+        logits = self.lm_head(x)
 
         loss = None
         if targets is not None:
             B, T, C = logits.shape
-            logits_flat = logits.view(B * T, C)
-            targets_flat = targets.view(B * T)
-            loss = F.cross_entropy(logits_flat, targets_flat)
+            logits = logits.view(B * T, C)
+            targets = targets.view(B * T)
+            loss = F.cross_entropy(logits, targets)
 
         return logits, loss
 
-    def generate(self, idx, max_new_tokens: int):
+    def generate(self, idx, max_new_tokens):
         for _ in range(max_new_tokens):
             idx_cond = idx[:, -self.block_size:]
             logits, _ = self(idx_cond)
