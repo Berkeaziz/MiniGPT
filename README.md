@@ -141,7 +141,7 @@ Make sure:
 - PyTorch is installed  
 - CUDA is available (optional but recommended)  
 
-## Example Output
+## Output
 
 ```
 Bust your by: your may feight cours?
